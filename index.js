@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const routerApi = require('./routes');
 const {
   errorHandler,
@@ -10,6 +11,18 @@ const app = express();
 const port = 3000;
 
 app.use(express.json());
+
+const whitelist = ['http://127.0.0.1:5500', 'https://myapp.co'];
+const options = {
+  origin: (origin, callback) => {
+    if (whitelist.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('no permitido'));
+    }
+  },
+};
+app.use(cors(options));
 
 app.get('/', (req, res) => {
   res.send('Hola mi server en express');
@@ -61,4 +74,28 @@ PATCH (como POST) puede tener efectos secundarios sobre otros recursos.
 PATCH - HTTP | MDN
 
 
+ */
+
+/***
+ *
+ *
+ Según lo que he leído en la documentación para habilitar CORS en todos los requests la solución sería añadir:
+
+const cors = require('cors');
+app.use(cors());
+Si solo queremos hacer CORS a los endpoints de nuestra API, bajamos app.use(cors()) justo antes de que empiecen nuestras rutas hacia la API. (Esa sería mi solución)
+ */
+
+/**
+ *
+
+33
+Un breve resumen de las consideraciones para producción:
+
+Cors: Que acceso y a quienes le damos acceso para hacer solicitudes
+Https: Que la API esta sobre servidor de HTTPS
+Procesos de Build: Se ve en procesos que cosas que tiene procesar información (typescript)
+Remover logs: No es bueno tener logs, a veces esto tiene demoras, existen mejor formas para capturar logs.
+Seguridad (helmet): Muy importante la seguridad y para esto se recomienda helmt que es una colección de Middleware que colocan capas de segridad a la aplicación
+Testing: Correr prebas unitarias o de integración antes de salir de producción
  */
